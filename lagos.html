@@ -1,0 +1,637 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Lagos Big Babe</title>
+<style>
+  :root {
+    --danfo-yellow: #f8b800;
+    --energy-green: #2ecc71;
+    --vibe-pink: #ff2a7a;
+    --dark: #121826;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; }
+  body {
+    background: #090d16;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  /* Phone Screen Container */
+  #game-device {
+    width: 100vw;
+    max-width: 420px;
+    height: 100vh;
+    max-height: 840px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 28px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    background: #222;
+  }
+
+  /* Dynamic Scenic Backgrounds */
+  .world-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: background-image 0.6s ease;
+    z-index: 1;
+  }
+  /* Ebute Metta Street Scene */
+  .bg-trenches {
+    background: linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.5)),
+                radial-gradient(circle at 50% 20%, #ffeaa7 0%, #fab1a0 40%, #e17055 100%);
+  }
+  /* Lekki Island Scene */
+  .bg-lekki {
+    background: linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.4)),
+                radial-gradient(circle at 50% 20%, #81ecec 0%, #74b9ff 60%, #0984e3 100%);
+  }
+  /* Banana Island Penthouse Scene */
+  .bg-banana {
+    background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.5)),
+                radial-gradient(circle at 50% 20%, #fd79a8 0%, #a29bfe 50%, #6c5ce7 100%);
+  }
+
+  /* Stylized Road & Danfo traffic lane */
+  .road-lane {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(135deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 20px, transparent 20px, transparent 40px);
+    z-index: 2;
+  }
+
+  /* UI Top Header & Status Meters */
+  .header-ui {
+    position: relative;
+    z-index: 10;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  /* Split Meter: Energy vs Vibe */
+  .meters-wrapper {
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(8px);
+    border-radius: 14px;
+    padding: 6px 10px;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .labels-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+  .meter-bar-container {
+    width: 100%;
+    height: 14px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    gap: 2px;
+  }
+  #energy-bar {
+    height: 100%;
+    background: var(--energy-green);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  #vibe-bar {
+    height: 100%;
+    background: var(--vibe-pink);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Top Stat Badges */
+  .badges-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .pill-badge {
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+  .naira-badge {
+    background: #000;
+    color: var(--danfo-yellow);
+    font-size: 14px;
+    font-weight: 900;
+    border-color: var(--danfo-yellow);
+  }
+
+  /* Character Viewport */
+  .character-viewport {
+    position: relative;
+    z-index: 5;
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    padding-left: 14px;
+    pointer-events: none;
+  }
+  .avatar-figure {
+    width: 190px;
+    max-height: 380px;
+    filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6));
+    animation: idleBreath 3s ease-in-out infinite alternate;
+  }
+  @keyframes idleBreath {
+    from { transform: translateY(0px) rotate(0deg); }
+    to { transform: translateY(-4px) rotate(0.5deg); }
+  }
+
+  /* Floating Notification Log */
+  .floating-toast {
+    position: absolute;
+    top: 96px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(18, 24, 38, 0.95);
+    color: #fff;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    z-index: 20;
+    border: 1px solid rgba(255,255,255,0.2);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  /* Bottom Interactive Decision Card (Matches Mockup) */
+  .bottom-card-tray {
+    position: relative;
+    z-index: 15;
+    padding: 14px 12px 18px;
+  }
+  .game-card {
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(12px);
+    border-radius: 24px;
+    padding: 16px 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+    border: 2px solid #fff;
+  }
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .card-top h3 {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .day-indicator {
+    font-size: 11px;
+    font-weight: 800;
+    color: #888;
+    background: #f1f2f6;
+    padding: 3px 8px;
+    border-radius: 8px;
+  }
+
+  /* 3 Interactive Tap Option Cards */
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .choice-box {
+    background: #f8f9fc;
+    border: 1.5px solid #e1e4ea;
+    border-radius: 16px;
+    padding: 10px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .choice-box:active {
+    transform: scale(0.95);
+  }
+  .choice-box:hover {
+    border-color: var(--danfo-yellow);
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(248, 184, 0, 0.25);
+  }
+  .choice-icon-wrap {
+    width: 100%;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 26px;
+    margin-bottom: 6px;
+  }
+  .choice-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--dark);
+    margin-bottom: 4px;
+    line-height: 1.1;
+  }
+  .choice-tag {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 3px 6px;
+    border-radius: 6px;
+    background: #eee;
+    color: #444;
+  }
+
+  /* Origin Selection Overlay */
+  #modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 14, 23, 0.94);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    text-align: center;
+  }
+  .origin-btn {
+    width: 100%;
+    background: white;
+    border: none;
+    border-radius: 16px;
+    padding: 14px;
+    margin: 8px 0;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .origin-btn:active { transform: scale(0.98); }
+</style>
+</head>
+<body>
+
+<div id="game-device">
+  <!-- Dynamic Environment Background -->
+  <div id="env-bg" class="world-bg bg-trenches"></div>
+  <div class="road-lane"></div>
+
+  <!-- Toast Feed -->
+  <div id="toast" class="floating-toast">Welcome to Lagos!</div>
+
+  <!-- Real-time HUD -->
+  <div class="header-ui">
+    <div class="meters-wrapper">
+      <div class="labels-row">
+        <span>⚡ Energy <strong id="val-energy">75%</strong></span>
+        <span>✨ Vibe <strong id="val-vibe">50%</strong></span>
+      </div>
+      <div class="meter-bar-container">
+        <div id="energy-bar" style="width: 50%;"></div>
+        <div id="vibe-bar" style="width: 50%;"></div>
+      </div>
+    </div>
+
+    <div class="badges-row">
+      <div class="pill-badge" id="badge-housing">
+        <span>📍</span> <span id="txt-housing">Ebute Metta Squatter</span>
+      </div>
+      <div class="pill-badge naira-badge">
+        <span>₦</span> <span id="txt-naira">15,000</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2D Character Figure Stand -->
+  <div class="character-viewport">
+    <svg class="avatar-figure" viewBox="0 0 160 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- High Quality Vector Stylized Big Babe Silhouette -->
+      <circle cx="80" cy="50" r="32" fill="#2c1d11"/>
+      <circle cx="56" cy="40" r="18" fill="#2c1d11"/>
+      <circle cx="104" cy="40" r="18" fill="#2c1d11"/>
+      <circle cx="80" cy="56" r="20" fill="#7a4b2a"/>
+      <!-- Chic Sunglasses -->
+      <path d="M68 52H92V62C92 65 89 67 86 67H74C71 67 68 65 68 62V52Z" fill="#111"/>
+      <line x1="72" y1="54" x2="88" y2="54" stroke="#ff2a7a" stroke-width="2"/>
+      <!-- Gold Hoops -->
+      <circle cx="60" cy="62" r="5" stroke="#f8b800" stroke-width="2" fill="none"/>
+      <circle cx="100" cy="62" r="5" stroke="#f8b800" stroke-width="2" fill="none"/>
+      <!-- Coral Blazer & White Top -->
+      <path d="M54 82C54 82 72 80 80 88C88 80 106 82 106 82L116 150H44L54 82Z" fill="#ff6b6b"/>
+      <polygon points="72,85 88,85 84,130 76,130" fill="#ffffff"/>
+      <!-- Tailored Teal Pants -->
+      <path d="M50 148H110L114 250H92L82 185L72 250H50L50 148Z" fill="#028090"/>
+      <!-- Smartphone in Hand -->
+      <rect x="110" y="130" width="16" height="28" rx="3" fill="#111" stroke="#f8b800" stroke-width="1.5"/>
+      <rect x="112" y="134" width="12" height="18" fill="#2ecc71"/>
+    </svg>
+  </div>
+
+  <!-- Bottom Action Card (Three-Tap Structure) -->
+  <div class="bottom-card-tray">
+    <div class="game-card">
+      <div class="card-top">
+        <h3 id="card-title"><span>🚌</span> Morning Commute</h3>
+        <span class="day-indicator" id="phase-badge">Phase: Morning</span>
+      </div>
+      <div class="options-grid" id="options-grid">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Origin Selection Modal (Start of Game) -->
+  <div id="modal-overlay">
+    <h1 style="color:var(--danfo-yellow); font-size:26px; margin-bottom:6px; font-weight:900;">LAGOS BIG BABE</h1>
+    <p style="color:#aaa; font-size:12px; margin-bottom:20px;">Grind from the trenches to Banana Island Penthouse!</p>
+    
+    <button class="origin-btn" onclick="chooseOrigin('Street Smart Hustler', 5000, 85, 45)">
+      <div>
+        <div>🔥 Street Smart Hustler</div>
+        <small style="color:#888;">Grit over glam</small>
+      </div>
+      <span style="color:#028090;">₦5k • 85⚡ • 45✨</span>
+    </button>
+
+    <button class="origin-btn" onclick="chooseOrigin('Corper with Laptop', 20000, 65, 55)">
+      <div>
+        <div>💻 Corper with Laptop</div>
+        <small style="color:#888;">Freelance ready</small>
+      </div>
+      <span style="color:#028090;">₦20k • 65⚡ • 55✨</span>
+    </button>
+
+    <button class="origin-btn" onclick="chooseOrigin('Ajebutter Intern', 50000, 50, 75)">
+      <div>
+        <div>🥑 Ajebutter Intern</div>
+        <small style="color:#888;">High Vibe, Low Energy</small>
+      </div>
+      <span style="color:#028090;">₦50k • 50⚡ • 75✨</span>
+    </button>
+  </div>
+</div>
+
+<script>
+// Game State
+let state = {
+  day: 1,
+  phase: 0, // 0 = Morning, 1 = Hustle, 2 = Evening
+  naira: 15000,
+  energy: 75,
+  vibe: 50,
+  housingTier: 0 // 0: Ebute Metta, 1: Lekki Flat, 2: Banana Island
+};
+
+const housingNames = ["Ebute Metta Squatter", "Lekki Phase 1 Flat", "Banana Island Penthouse"];
+
+// 3-Tap Loop Card Content
+const deck = {
+  // Morning Cards (Commute focus as shown on mockup)
+  0: {
+    title: "Morning Commute",
+    icon: "🚌",
+    choices: [
+      {
+        name: "Squeeze Danfo",
+        icon: "🚐",
+        bg: "#ffeaa7",
+        costN: -300,
+        energy: -25,
+        vibe: -10,
+        tag: "-₦300 • -25⚡",
+        toast: "Agbero yelled at you, but you saved cash!"
+      },
+      {
+        name: "BRT Bus Queue",
+        icon: "🚍",
+        bg: "#81ecec",
+        costN: -800,
+        energy: -10,
+        vibe: +5,
+        tag: "-₦800 • -10⚡",
+        toast: "AC was working in the BRT corridor!"
+      },
+      {
+        name: "Bolt Aircon",
+        icon: "🚗",
+        bg: "#fab1a0",
+        costN: -4500,
+        energy: -5,
+        vibe: +25,
+        tag: "-₦4.5k • +25✨",
+        toast: "Cruised through Third Mainland with chilled AC."
+      }
+    ]
+  },
+  // Hustle Cards (Work, Shops, USD Clients)
+  1: {
+    title: "The Daily Hustle",
+    icon: "💼",
+    choices: [
+      {
+        name: "Balogun Market Run",
+        icon: "👗",
+        bg: "#ffeaa7",
+        costN: +12000,
+        energy: -30,
+        vibe: +5,
+        tag: "+₦12k • -30⚡",
+        toast: "Sold out stylish thrift gowns in 2 hours!"
+      },
+      {
+        name: "USD Forex Gig",
+        icon: "💻",
+        bg: "#a8dadc",
+        costN: +45000,
+        energy: -20,
+        vibe: +15,
+        reqVibe: 40,
+        tag: "+₦45k (Req 40✨)",
+        toast: "US client loved your delivery. Wire cleared!"
+      },
+      {
+        name: "Retail Shift",
+        icon: "🛍️",
+        bg: "#fab1a0",
+        costN: +7000,
+        energy: -15,
+        vibe: -5,
+        tag: "+₦7k • -15⚡",
+        toast: "Clocked in and out. Steady bread."
+      }
+    ]
+  },
+  // Evening Cards (Lifestyle, Fashion, Recovery)
+  2: {
+    title: "Evening Vibe",
+    icon: "✨",
+    choices: [
+      {
+        name: "Suya & 8hr Sleep",
+        icon: "🥩",
+        bg: "#b8e994",
+        costN: -2000,
+        energy: +45,
+        vibe: +10,
+        tag: "+45⚡ • -₦2k",
+        toast: "Glover Court suya hit the spot. Well rested!"
+      },
+      {
+        name: "Lekki Lounge Party",
+        icon: "🍸",
+        bg: "#fd79a8",
+        costN: -18000,
+        energy: -20,
+        vibe: +40,
+        tag: "+40✨ • -₦18k",
+        toast: "Bottles popped, network expanded on the island!"
+      },
+      {
+        name: "Designer Wardrobe",
+        icon: "👠",
+        bg: "#dff9fb",
+        costN: -25000,
+        energy: 0,
+        vibe: +30,
+        tag: "+30✨ • -₦25k",
+        toast: "Big babe drip upgraded. Looking like a million USD!"
+      }
+    ]
+  }
+};
+
+function chooseOrigin(name, naira, energy, vibe) {
+  state.naira = naira;
+  state.energy = energy;
+  state.vibe = vibe;
+  document.getElementById("modal-overlay").style.display = "none";
+  showToast(`Welcome ${name}!`);
+  render();
+}
+
+function selectChoice(index) {
+  const currentCard = deck[state.phase];
+  const choice = currentCard.choices[index];
+
+  // Requirements check
+  if (choice.reqVibe && state.vibe < choice.reqVibe) {
+    showToast(`⚠️ Need ${choice.reqVibe} Vibe to do this!`);
+    return;
+  }
+
+  // Apply Changes
+  state.naira += choice.costN;
+  state.energy = Math.min(100, Math.max(5, state.energy + choice.energy));
+  state.vibe = Math.min(100, Math.max(0, state.vibe + choice.vibe));
+  showToast(choice.toast);
+
+  // Advance Phase (Three-Tap Structure)
+  state.phase++;
+  if (state.phase > 2) {
+    state.phase = 0;
+    state.day++;
+  }
+
+  // Progression Milestones
+  checkProgression();
+  render();
+}
+
+function checkProgression() {
+  const envBg = document.getElementById("env-bg");
+
+  if (state.naira >= 300000 && state.vibe >= 75) {
+    state.housingTier = 2; // Banana Island Penthouse
+    envBg.className = "world-bg bg-banana";
+  } else if (state.naira >= 70000 && state.vibe >= 50) {
+    state.housingTier = 1; // Lekki Flat
+    envBg.className = "world-bg bg-lekki";
+  } else {
+    state.housingTier = 0;
+    envBg.className = "world-bg bg-trenches";
+  }
+}
+
+function render() {
+  // Update Live Meters
+  document.getElementById("val-energy").innerText = `${state.energy}%`;
+  document.getElementById("val-vibe").innerText = `${state.vibe}%`;
+  document.getElementById("energy-bar").style.width = `${state.energy}%`;
+  document.getElementById("vibe-bar").style.width = `${state.vibe}%`;
+
+  // Update Status Badges
+  document.getElementById("txt-naira").innerText = state.naira.toLocaleString();
+  document.getElementById("txt-housing").innerText = housingNames[state.housingTier];
+
+  // Update Card Header
+  const currentCard = deck[state.phase];
+  const phaseLabels = ["Morning", "Hustle", "Evening"];
+  document.getElementById("card-title").innerHTML = `<span>${currentCard.icon}</span> ${currentCard.title}`;
+  document.getElementById("phase-badge").innerText = `Day ${state.day} • ${phaseLabels[state.phase]}`;
+
+  // Populate 3 Option Boxes
+  const grid = document.getElementById("options-grid");
+  grid.innerHTML = "";
+
+  currentCard.choices.forEach((c, idx) => {
+    const box = document.createElement("div");
+    box.className = "choice-box";
+    box.onclick = () => selectChoice(idx);
+
+    box.innerHTML = `
+      <div class="choice-icon-wrap" style="background:${c.bg}">
+        <span>${c.icon}</span>
+      </div>
+      <div class="choice-title">${c.name}</div>
+      <div class="choice-tag">${c.tag}</div>
+    `;
+    grid.appendChild(box);
+  });
+}
+
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.innerText = msg;
+  toast.style.opacity = "1";
+  setTimeout(() => { toast.style.opacity = "0"; }, 2000);
+}
+
+// Initial draw
+render();
+</script>
+</body>
+</html>
